@@ -251,6 +251,9 @@ export const npc_entity = (() => {
 
     _OnAIWalk(timeInSeconds) {
       const dirToPlayer = this._FindPlayer();
+	  if (dirToPlayer.length() == 0) {
+        return;
+      }
 
       const velocity = this._velocity;
       const frameDecceleration = new THREE.Vector3(
@@ -265,16 +268,12 @@ export const npc_entity = (() => {
       velocity.add(frameDecceleration);
 
       const controlObject = this._target;
-      const _Q = new THREE.Quaternion();
-      const _A = new THREE.Vector3();
       const _R = controlObject.quaternion.clone();
   
       this._input._keys.forward = false;
 
       const acc = this._acceleration;
-      if (dirToPlayer.length() == 0) {
-        return;
-      }
+      
 
       this._input._keys.forward = true;
       velocity.z += acc.z * timeInSeconds;
