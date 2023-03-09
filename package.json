@@ -1,0 +1,26 @@
+{
+  "name": "3jsroberto",
+  "version": "1.0.0",
+  "description": "To make it easy for you to get started with GitLab, here's a list of recommended next steps.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/Ozonetechnologies/3jsroberto.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/Ozonetechnologies/3jsroberto/issues"
+  },
+  "homepage": "https://gitlab.com/Ozonetechnologies/3jsroberto#readme",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "http": "^0.0.1-security",
+    "path": "^0.12.7",
+    "three": "^0.127.0"
+  }
+}

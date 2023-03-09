@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Princess Knight</title>
+		<meta
+		name="viewport"
+		content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+		/>
+		<link rel="icon" type="image/x-icon" href="./resources/icons/ozone.ico" />
+		<link rel="stylesheet" type="text/css" href="base.css" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" />
+		<link
+		href="https://fonts.googleapis.com/css2?family=IM+Fell+English&display=swap"
+		rel="stylesheet"
+		/>
+		<link
+		href="https://fonts.googleapis.com/css2?family=IM+Fell+French+Canon+SC&display=swap"
+		rel="stylesheet"
+		/>
+		<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> 
+	</head>
+	<body>
+		<section id="loading-screen">
+
+			<div id="loader"></div>
+		
+		</section>
+		<!-- <div id="mostrarmodal" class="modalContainer" style="z-index: 20;">
+			<div class="modal-content">
+				<h1 style="margin:1%"><img src="./resources/icons/ui/Princess Knight.jpg" alt="" style="width: 100%;height: 10rem;"></h1>
+				<h2 style="margin:1%">The Kingdom is under Attack! Defeat All Enemies and Save the Princess!</h2>
+				<h2 style="margin:1%" class="modal_title">Choose your HERO!</h2>
+				<div class="icon-ui">
+					<div class="icon-bar" id="icon-bar">
+						<button id="icon-bar-selector">
+							<img class="modal_image" src="./resources/icons/ui/Hero1.png"/>
+						</button>
+						<button id="icon-bar-selector2">
+							<img class="modal_image" src="./resources/icons/ui/Hero2.png"/>
+						</button>
+						<button id="icon-bar-selector3">
+							<img class="modal_image" src="./resources/icons/ui/Hero3.png"/>
+						</button>
+						<button id="icon-bar-selector4">
+							<img class="modal_image" src="./resources/icons/ui/Hero4.png"/>
+						</button>
+					</div>
+				</div>
+				 <div class="modal-footer">
+					<a href="#" data-dismiss="modal" class="btn btn-danger">Cerrar</a>
+					</div> 
+				</div> 
+			</div>
+		</div> -->
+
+		<div id="mostrarmodalprev" class="modalContainer1" style="z-index: 30;">
+			<div class="modal-content1">
+				
+				<button id="icon-bar-selector-prev" style="bottom: 1%;left: 45%;position: fixed;background: transparent;">
+					<img class="modal_image" src="./resources/icons/ui/button.jpg"/>
+				</button>
+				<!-- <div class="modal-footer">
+					<a href="#" data-dismiss="modal" class="btn btn-danger">Cerrar</a>
+					</div> 
+				</div> -->
+			</div>
+		</div>
+
+		<script src="./src/main.js" type="module"></script>
+		<div class="container" id="container">
+		<!-- <div class="ui">
+			<div class="icon-ui">
+			<div class="icon-bar" id="icon-bar">
+				<div
+				class="icon-bar-item"
+				id="icon-bar-inventory"
+				style="background-image: url('./resources/icons/ui/backpack.png')"
+				></div>
+			</div>
+			</div> -->
+		</div>
+		
+		<div class="ui">
+			<div class="health-ui">
+				<img src="./resources/icons/ui/health-bar3.png" alt="" width="300px" />
+				<div class="health-bar" id="health-bar"></div>
+			</div>
+		</div>
+		<div class="ui">
+			<button id="myBtn" style="border-radius: 100%;
+			background: none;
+			border: none;">
+				<img src="./resources/icons/ui/debug.png" style='height: 100px;
+				width: 100px;
+				cursor: pointer;
+				object-fit: contain;
+				border-radius: 100%;'/>
+			</button>
+			<div class="inventory" id="inventory">
+				<div class="inventory-inner">
+					<div class="inventory-title">Inventory</div>
+					<div class="inventory-row">
+						<div class="inventory-column">
+							<div
+							class="inventory-item"
+							id="inventory-equip-1"
+							draggable="true"
+							></div>
+							<div
+							class="inventory-item"
+							id="inventory-equip-2"
+							draggable="true"
+							></div>
+							<div
+							class="inventory-item"
+							id="inventory-equip-3"
+							draggable="true"
+							></div>
+							<div
+							class="inventory-item"
+							id="inventory-equip-4"
+							draggable="true"
+							></div>
+						</div>
+						<div class="inventory-character"></div>
+						<div class="inventory-column">
+							<div
+							class="inventory-item"
+							id="inventory-equip-5"
+							draggable="true"
+							></div>
+							<div
+							class="inventory-item"
+							id="inventory-equip-6"
+							draggable="true"
+							></div>
+							<div
+							class="inventory-item"
+							id="inventory-equip-7"
+							draggable="true"
+							></div>
+							<div
+							class="inventory-item"
+							id="inventory-equip-8"
+							draggable="true"
+							></div>
+						</div>
+					</div>
+					<div class="inventory-row">
+						<div
+							class="inventory-item"
+							id="inventory-1"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-2"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-3"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-4"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-5"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-6"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-7"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-8"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+					</div>
+					<div class="inventory-row">
+						<div
+							class="inventory-item"
+							id="inventory-9"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-10"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-11"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-12"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-13"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-14"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-15"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-16"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+					</div>
+					<div class="inventory-row">
+						<div
+							class="inventory-item"
+							id="inventory-17"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-18"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-19"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-20"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-21"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-22"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-23"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+						<div
+							class="inventory-item"
+							id="inventory-24"
+							draggable="true"
+							style="visibility:hidden;"
+						></div>
+					</div>
+				</div>
+			</div>
+			<!-- <button id="btnModal">Abrir modal</button>  -->
+			<div id="myModal" class="modalContainer">
+				<div class="modal-content">
+					<h1 class="modal_title-dead">GAME OVER</h1>
+					<h1 class="modal_message-dead">Press the button to restart the game</h1>
+					<input type="button" id="modal-button-dead" value="Restart" onclick="location.reload()"/></div>
+				</div> 
+			</div>
+		</div>
+
+		<script>
+		$(document).ready(function()
+		{
+			$("#mostrarmodal").modal("show");
+		});
+		// var btn = document.getElementById("myBtn");
+		// var modal = document.getElementById("mostrarmodal");
+		// btn.onclick = function() {
+		// modal.style.display = "block";
+		// }
+		</script>
+	</body>
+</html>
