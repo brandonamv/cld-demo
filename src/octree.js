@@ -10,7 +10,7 @@ const BottomRightBack= 6;
 const BottomLeftBack= 7;
 //se compara con un rango de error permitido
 function compareFind(x1,y1,z1,x2,y2,z2) {
-	if (Math.abs(x2-x1)<2&&Math.abs(y2-y1)<2&&Math.abs(z2-z1)<2) {
+	if (Math.abs(x2-x1)<2.5&&Math.abs(y2-y1)<2.5&&Math.abs(z2-z1)<2.5) {
 		return true;
 	}else{
 		return false;
@@ -465,88 +465,7 @@ export function newOctree(min,max) {
  */
 export function addPointsFromMesh(mesh,presition,scene,debug) {
 	const debugs=[];
-	const drawLine=(x1,y1,z1,x2,y2,z2)=> {
-		let i, dx, dy, dz, l, m, n, x_inc, y_inc, z_inc, err_1, err_2, dx2, dy2, dz2;
-		let point=[];
-		
-		point.push(x1);
-		point.push(y1);
-		point.push(z1);
-		dx = x2 - x1;
-		dy = y2 - y1;
-		dz = z2 - z1;
-		x_inc = (dx < 0) ? -1 : 1;
-		l = Math.abs(dx);
-		y_inc = (dy < 0) ? -1 : 1;
-		m = Math.abs(dy);
-		z_inc = (dz < 0) ? -1 : 1;
-		n = Math.abs(dz);
-		dx2 = l << 1;
-		dy2 = m << 1;
-		dz2 = n << 1;
-		
-		if ((l >= m) && (l >= n)) {
-			err_1 = dy2 - l;
-			err_2 = dz2 - l;
-			for (i = 0; i < l; i++) {
-				if(!octree.insert(point[0],point[1],point[2])){
-					debugs.push(new THREE.Vector3(point[0],point[1],point[2]));
-				}
-				if (err_1 > 0) {
-					point[1] += y_inc;
-					err_1 -= dx2;
-				}
-				if (err_2 > 0) {
-					point[2] += z_inc;
-					err_2 -= dx2;
-				}
-				err_1 += dy2;
-				err_2 += dz2;
-				point[0] += x_inc;
-			}
-		} else if ((m >= l) && (m >= n)) {
-			err_1 = dx2 - m;
-			err_2 = dz2 - m;
-			for (i = 0; i < m; i++) {
-				if(!octree.insert(point[0],point[1],point[2])){
-					debugs.push(new THREE.Vector3(point[0],point[1],point[2]));
-				}
-				if (err_1 > 0) {
-					point[0] += x_inc;
-					err_1 -= dy2;
-				}
-				if (err_2 > 0) {
-					point[2] += z_inc;
-					err_2 -= dy2;
-				}
-				err_1 += dx2;
-				err_2 += dz2;
-				point[1] += y_inc;
-			}
-		} else {
-			err_1 = dy2 - n;
-			err_2 = dx2 - n;
-			for (i = 0; i < n; i++) {
-				if(!octree.insert(point[0],point[1],point[2])){
-					debugs.push(new THREE.Vector3(point[0],point[1],point[2]));
-				}
-				if (err_1 > 0) {
-					point[1] += y_inc;
-					err_1 -= dz2;
-				}
-				if (err_2 > 0) {
-					point[0] += x_inc;
-					err_2 -= dz2;
-				}
-				err_1 += dy2;
-				err_2 += dx2;
-				point[2] += z_inc;
-			}
-		}
-		if(!octree.insert(point[0],point[1],point[2])){
-			debugs.push(new THREE.Vector3(point[0],point[1],point[2]));
-		}
-	}
+	
 	const pos=mesh.geometry.attributes.position;
 	/* const traslation=new THREE.Matrix4().makeTranslation(mesh.position.x,mesh.position.y,mesh.position.z);
 	const rotation= new THREE.Matrix4().makeRotationFromEuler(mesh.rotation);
@@ -639,6 +558,7 @@ export function addPointsFromBounding(mesh,presition,scene,debug) {
 	// const rotation= new THREE.Matrix4().makeRotationFromEuler(mesh.rotation);
 	// const scale= new THREE.Matrix4().makeScale(mesh.scale.x,mesh.scale.y,mesh.scale.z);
 	// const model=traslation.multiply(rotation.multiply(scale));
+
 	const max=mesh.geometry.boundingBox.max;
 	const min=mesh.geometry.boundingBox.min;
 	if (max.x<min.x) {
@@ -651,29 +571,38 @@ export function addPointsFromBounding(mesh,presition,scene,debug) {
 		max.z=min.z;
 		min.z=aux;
 	}
-	const pres=1/presition;
-	
-	const debugs=[];
+	const pres=1/(presition+1);
+	var dotGeometry = new THREE.BufferGeometry();
+	const points=[];
+	//const debugs=[];
 	for (let i = min.y; i <= max.y; i+=pres) {
 		for (let j = min.x; j <= max.x; j+=pres) {
-			for (let k = min.z; k <= max.z; k+=pres) {
+			for (let k = min.z; k <= max.z	; k+=pres) {
 				const point=new THREE.Vector3(j,i,k).applyMatrix4(mesh.matrixWorld);
 				point.set(Number(point.x.toFixed(presition)),Number(point.y.toFixed(presition)),Number(point.z.toFixed(presition)));
 				if (!octree.find(point.x,point.y,point.z)) {
 					if(octree.insert(point.x,point.y,point.z)){
-						debugs.push(point);
+						//debugs.push(point);
+						points.push(point.x);
+						points.push(point.y);
+						points.push(point.z);
 					}
 				}
 			}
 		}
 	}
-	
-	const geometry=new THREE.BufferGeometry().setFromPoints( debugs );
-	const line=new THREE.Line(geometry,material_cold);
-	line.visible=debug;
+	dotGeometry.setAttribute( 'position', new THREE.Float32BufferAttribute( points, 3 ) );
+	var dotMaterial = new THREE.PointsMaterial( { size: 1, color: 0x00ff00 } );
+	var dot = new THREE.Points( dotGeometry, dotMaterial );
+	dot.visible=debug;
+	dot.name='debug'
+	scene.add( dot );
+	// const geometry=new THREE.BufferGeometry().setFromPoints( debugs );
+	// const line=new THREE.Line(geometry,material_cold);
+	// line.visible=debug;
 	v_debug=debug;
-	line.name='debug';
-	scene.add(line);
+	// line.name='debug';
+	// scene.add(line);
 	
 	
 }
@@ -684,8 +613,8 @@ export function addPointsFromBounding(mesh,presition,scene,debug) {
  * @param {THREE.Vector3} scale the object.scale
  */
 export function detectColision(position,scale) {
-	for (let i = -0.5; i < scale.y; i+=0.5) {
-		if(octree.findOut(Number(position.x).toFixed(2),i,Number(position.z).toFixed(2))){
+	for (let i = -1; i < scale.y; i+=0.5) {
+		if(octree.findOut(position.x,i,position.z)){
 			return true;
 		}
 	}
