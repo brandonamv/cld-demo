@@ -259,10 +259,25 @@ class HackNSlashDemo {
 		object.updateMatrixWorld();
         object.traverse((e) => {
 			if (e.isMesh) {
-				if (index==3||index==1||index==2) {
-					const points=[];
-					
-					const pos=e.geometry.attributes.position;
+			
+				e.receiveShadow = true;
+				e.castShadow = true;
+			}
+        });
+        scene.add(object);
+      });
+    });
+	loader.setPath(
+		"https://assets2022.s3.amazonaws.com/Dragon/demo/46/"
+	  );
+	
+	loader.load("CLD.gltf", (gltf) => {
+        const object = gltf.scene;
+		object.scale.set(4, 4, 4);
+		object.updateWorldMatrix(true,true);
+		object.updateMatrixWorld();
+        object.traverse((e) => {
+			if (e.isMesh) {
 					/* let color=pos.count.toString(16);
 					const n=6-color.length;
 					for (let i = 0; i < n; i++) {
@@ -272,7 +287,7 @@ class HackNSlashDemo {
 						color: '#'+color,
 					});
 					console.log(e.name,pos,material_cold.color); */
-					OCTREE.addPointsFromMesh(e,1,this._scene,false);
+					OCTREE.addPointsFromBounding(e,1,this._scene,false);
 					/* const traslation=new THREE.Matrix4().makeTranslation(e.position.x,e.position.y,e.position.z);
 					const rotation= new THREE.Matrix4().makeRotationFromEuler(e.rotation);
 					const scale= new THREE.Matrix4().makeScale(e.scale.x*4,e.scale.y*4,e.scale.z*4);
@@ -286,15 +301,12 @@ class HackNSlashDemo {
 					/* const geometry=new THREE.BufferGeometry().setFromPoints( points );
 					const line=new THREE.Line(geometry,material_cold);
 					scene.add(line); */
-				}
-			
-				e.receiveShadow = true;
-				e.castShadow = true;
+				
 			}
         });
-        scene.add(object);
+		scene.add(object);
       });
-    });
+
   }
 
   _LoadPlayer() {

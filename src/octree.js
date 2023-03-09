@@ -441,6 +441,9 @@ export {Octree};
 var octree;
 var ubicacion=[];
 var v_debug=false;
+var material_cold = new THREE.LineBasicMaterial({
+	color: 0x0000ff
+});
 
 export {octree};
 /**
@@ -550,9 +553,6 @@ export function addPointsFromMesh(mesh,presition,scene,debug) {
 	const scale= new THREE.Matrix4().makeScale(mesh.scale.x*4,mesh.scale.y*4,mesh.scale.z*4);
 	const model=traslation.multiply(rotation.multiply(scale)); */
 	const index=mesh.geometry.index;
-	let material_cold = new THREE.LineBasicMaterial({
-		color: 0x0000ff
-	});
 	
 	for (let i = 0; i < index.count/3; i++) {
 		const point=new THREE.Vector3(pos.array[index.array[i*3]*3],pos.array[index.array[i*3]*3+1],pos.array[index.array[i*3]*3+2]).applyMatrix4(mesh.matrixWorld);
@@ -635,10 +635,10 @@ export function addPointsFromMesh(mesh,presition,scene,debug) {
  */
 export function addPointsFromBounding(mesh,presition,scene,debug) {
 	
-	const traslation=new THREE.Matrix4().makeTranslation(mesh.position.x,mesh.position.y,mesh.position.z);
-	const rotation= new THREE.Matrix4().makeRotationFromEuler(mesh.rotation);
-	const scale= new THREE.Matrix4().makeScale(mesh.scale.x,mesh.scale.y,mesh.scale.z);
-	const model=traslation.multiply(rotation.multiply(scale));
+	// const traslation=new THREE.Matrix4().makeTranslation(mesh.position.x,mesh.position.y,mesh.position.z);
+	// const rotation= new THREE.Matrix4().makeRotationFromEuler(mesh.rotation);
+	// const scale= new THREE.Matrix4().makeScale(mesh.scale.x,mesh.scale.y,mesh.scale.z);
+	// const model=traslation.multiply(rotation.multiply(scale));
 	const max=mesh.geometry.boundingBox.max;
 	const min=mesh.geometry.boundingBox.min;
 	if (max.x<min.x) {
@@ -651,34 +651,30 @@ export function addPointsFromBounding(mesh,presition,scene,debug) {
 		max.z=min.z;
 		min.z=aux;
 	}
-	const bounding=[];
 	const pres=1/presition;
+	
+	const debugs=[];
 	for (let i = min.y; i <= max.y; i+=pres) {
 		for (let j = min.x; j <= max.x; j+=pres) {
 			for (let k = min.z; k <= max.z; k+=pres) {
-				bounding.push(new THREE.Vector3(j,i,k).applyMatrix4(model));
+				const point=new THREE.Vector3(j,i,k).applyMatrix4(mesh.matrixWorld);
+				point.set(Number(point.x.toFixed(presition)),Number(point.y.toFixed(presition)),Number(point.z.toFixed(presition)));
+				if (!octree.find(point.x,point.y,point.z)) {
+					if(octree.insert(point.x,point.y,point.z)){
+						debugs.push(point);
+					}
+				}
 			}
 		}
 	}
 	
-	const geometry=new THREE.BufferGeometry().setFromPoints( bounding );
+	const geometry=new THREE.BufferGeometry().setFromPoints( debugs );
 	const line=new THREE.Line(geometry,material_cold);
 	line.visible=debug;
+	v_debug=debug;
 	line.name='debug';
 	scene.add(line);
-
-	for (let i = 0; i < bounding.length; i++) {
-		if (!octree.find(Number(bounding[i].x).toFixed(presition),Number(bounding[i].y).toFixed(presition),Number(bounding[i].z).toFixed(presition))) {
-			if(octree.insert(Number(bounding[i].x).toFixed(presition),Number(bounding[i].y).toFixed(presition),Number(bounding[i].z).toFixed(presition))){
-				ubicacion.push({x:Number(bounding[i].x).toFixed(presition),y:Number(bounding[i].y).toFixed(presition),z:Number(bounding[i].z).toFixed(presition)});
-			}
-		} 
-	}
 	
-	ubicacion.forEach(e=>{
-		if(!octree.findOut(e.x,e.y,e.z))
-			console.log("no encontro");
-	})
 	
 }
 
