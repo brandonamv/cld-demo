@@ -116,7 +116,7 @@ class HackNSlashDemo {
     const fov = 30;
     const aspect = window.innerWidth / window.innerHeight;
     const near = 1.0;
-    const far = 200.0;
+    const far = 500.0;
     this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     this._camera.position.set(25, 10, 25);
 
@@ -150,18 +150,18 @@ class HackNSlashDemo {
     this._cielo = new Sky(this._scene, this._camera);
 
     //variable del agua
-    this._ocean = new THREE.Mesh(
-      new THREE.PlaneGeometry(1000, 1000, 5, 5),
-      new THREE.MeshStandardMaterial({
-        color: 0x1e601c,
-      })
-    );
-    this._ocean.castShadow = false;
-    this._ocean.receiveShadow = true;
-    this._ocean.rotation.x = -Math.PI / 2;
-    this._ocean.position.y = -40;
-    this._agua = new Ocean(this._ocean, this._camera, this._cielo);
-    this._scene.add(this._ocean);
+    // this._ocean = new THREE.Mesh(
+    //   new THREE.PlaneGeometry(1000, 1000, 5, 5),
+    //   new THREE.MeshStandardMaterial({
+    //     color: 0x1e601c,
+    //   })
+    // );
+    // this._ocean.castShadow = false;
+    // this._ocean.receiveShadow = true;
+    // this._ocean.rotation.x = -Math.PI / 2;
+    // this._ocean.position.y = -40;
+    // this._agua = new Ocean(this._ocean, this._camera, this._cielo);
+    // this._scene.add(this._ocean);
 
     this._entityManager = new entity_manager.EntityManager();
 	OCTREE.newOctree(new THREE.Vector3(-1000, -100, -1000), new THREE.Vector3(1000, 100, 1000));
@@ -201,7 +201,7 @@ class HackNSlashDemo {
         const object = glb.scene;
         object.position.set(
           (Math.random() * 2.0 - 1.0) * 500,
-          150,
+          100,
           (Math.random() * 2.0 - 1.0) * 500
         );
         object.scale.set(
@@ -677,9 +677,9 @@ class HackNSlashDemo {
       );
       npc.SetPosition(
         new THREE.Vector3(
-          Math.random() * (300 - 180) - 80,
+          Math.random() * 300-150,
           0,
-          Math.random() * (-400 - 10) - 100
+          Math.random() * 280 - 140
         )
       );
       this._entityManager.Add(npc);
@@ -726,8 +726,8 @@ class HackNSlashDemo {
       this._entityManager.Update(timeElapsedS*1.1);
 
       //mover el agua
-      this._agua.update(this._cielo._phi / 1800 + 0.0001);
-      this._ocean.position.setY(intensidad / 18 - 40);
+    //   this._agua.update(this._cielo._phi / 1800 + 0.0001);
+    //   this._ocean.position.setY(intensidad / 18 - 40);
       //proceso para dar movimiento a nubes
       this._clouds.forEach((e) => {
         //si la nube pasa el umbral, se "resetea"
