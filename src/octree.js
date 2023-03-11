@@ -10,7 +10,7 @@ const BottomRightBack= 6;
 const BottomLeftBack= 7;
 //se compara con un rango de error permitido
 function compareFind(x1,y1,z1,x2,y2,z2) {
-	if (Math.abs(x2-x1)<2.5&&Math.abs(y2-y1)<2.5&&Math.abs(z2-z1)<2.5) {
+	if (Math.abs(x2-x1)<1&&Math.abs(y2-y1)<1&&Math.abs(z2-z1)<1) {
 		return true;
 	}else{
 		return false;
@@ -576,8 +576,8 @@ export function addPointsFromBounding(mesh,presition,scene,debug) {
 	const points=[];
 	//const debugs=[];
 	for (let i = min.y; i <= max.y; i+=pres) {
-		for (let j = min.x; j <= max.x; j+=pres) {
-			for (let k = min.z; k <= max.z	; k+=pres) {
+		for (let j = min.x-.1; j <= max.x+.1; j+=pres) {
+			for (let k = min.z-.1; k <= max.z+.1; k+=pres) {
 				const point=new THREE.Vector3(j,i,k).applyMatrix4(mesh.matrixWorld);
 				point.set(Number(point.x.toFixed(presition)),Number(point.y.toFixed(presition)),Number(point.z.toFixed(presition)));
 				if (!octree.find(point.x,point.y,point.z)) {
@@ -610,12 +610,17 @@ export function addPointsFromBounding(mesh,presition,scene,debug) {
 /** 
  * Function to detect object actual position collision
  * @param {THREE.Vector3} position the object.position
- * @param {THREE.Vector3} scale the object.scale
+ * @param {THREE.Vector3} min the object.min
+ * @param {THREE.Vector3} max the object.max
  */
-export function detectColision(position,scale) {
-	for (let i = -1; i < scale.y; i+=0.5) {
-		if(octree.findOut(position.x,i,position.z)){
-			return true;
+export function detectColision(position,min,max) {
+	for (let i = position.x+min.x; i <position.x+max.x ; i++) {
+		for (let j = position.y+min.y; j < position.y+max.y; j++) {
+			for (let k = position.z+min.z; k < position.z+max.z; k++) {
+				if(octree.findOut(i,j,k)){
+					return true;
+				}
+			}
 		}
 	}
 	return false;

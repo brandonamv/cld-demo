@@ -287,7 +287,7 @@ class HackNSlashDemo {
 						color: '#'+color,
 					});
 					console.log(e.name,pos,material_cold.color); */
-					OCTREE.addPointsFromBounding(e,2,this._scene,false);
+					OCTREE.addPointsFromBounding(e,1,this._scene,false);
 					/* const traslation=new THREE.Matrix4().makeTranslation(e.position.x,e.position.y,e.position.z);
 					const rotation= new THREE.Matrix4().makeRotationFromEuler(e.rotation);
 					const scale= new THREE.Matrix4().makeScale(e.scale.x*4,e.scale.y*4,e.scale.z*4);

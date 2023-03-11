@@ -167,10 +167,30 @@ export const player_entity = (() => {
 		const loader = new FBXLoader();
 		/* loader.setPath("https://assets2022.s3.amazonaws.com/Dragon/animoca/MedievalcastleAtlasH/heros/"); */
 		loader.setPath("./resources/guard/");
-		
+		this._min=new THREE.Vector3(Infinity,Infinity,Infinity);
+		this._max=new THREE.Vector3(-Infinity,-Infinity,-Infinity);
 		loader.load("castle_guard_1.fbx", (fbx) => {
 			//cargando personaje y seteando las posiciones y argumentos
 			this.target.push(fbx);
+			const index=fbx.children[1].geometry.attributes.position.count;
+			const array=fbx.children[1].geometry.attributes.position.array;
+			for (let i = 0; i < index; i++) {
+				const point=new THREE.Vector3(array[i*3],array[i*3+1],array[i*3+2]);
+				if(point.x<this._min.x)
+					this._min.setX(point.x);
+				if(point.y<this._min.y)
+					this._min.setY(point.y);
+				if(point.z<this._min.z)
+					this._min.setZ(point.z);
+				if(point.x>this._max.x)
+					this._max.setX(point.x);
+				if(point.y>this._max.y)
+					this._max.setY(point.y);
+				if(point.z>this._max.z)
+					this._max.setZ(point.z);
+			}
+			this._max.multiplyScalar(0.035);
+			this._min.multiplyScalar(0.035);
 			//console.log(this);	
 			const n=this.target.length-1;
 			this.target[n].scale.setScalar(0.035);
@@ -765,7 +785,7 @@ export const player_entity = (() => {
       const pos = controlObject.position.clone();
       pos.add(forward);
       pos.add(sideways);
-	  if(OCTREE.detectColision(pos,new THREE.Vector3(0,2,0)))return;
+	  if(OCTREE.detectColision(pos,this._min,this._max))return;
       const collisions = this._FindIntersections(pos);
       if (collisions.length > 0) {
         return;
