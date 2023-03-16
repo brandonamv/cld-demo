@@ -103,8 +103,8 @@ export const npc_entity = (() => {
         }
 
         this._target.traverse(c => {
-          c.castShadow = true;
-          c.receiveShadow = true;
+          //c.castShadow = true;
+          //c.receiveShadow = true;
           if (c.material && c.material.map) {
             c.material.map.encoding = THREE.sRGBEncoding;
             // c.material.map = texture;

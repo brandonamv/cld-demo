@@ -20,6 +20,7 @@ import { Sky } from "./sky/sky.js";
 import { GLTFLoader } from "../node_modules/three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "../node_modules/three/examples/jsm/loaders/DRACOLoader.js";
 import * as OCTREE from "./octree.js";
+//import Stats from "../node_modules/three/examples/jsm/libs/stats.module.js"
 
 class HackNSlashDemo {
   constructor() {
@@ -27,8 +28,10 @@ class HackNSlashDemo {
   }
 
   _Initialize() {
+	//this._stats = Stats();
+	//document.body.appendChild(this._stats.dom);
     this._threejs = new THREE.WebGLRenderer({
-      antialias: true,
+      antialias: false,
     });
     this._threejs.outputEncoding = THREE.sRGBEncoding;
     //this._threejs.gammaFactor = 2.2;
@@ -49,6 +52,9 @@ class HackNSlashDemo {
 		setTimeout(() => {
 			document.getElementById("mostrarmodalprev").style.visibility = "hidden";
 			this._selected = true;
+			var e = jQuery.Event("keydown");
+			e.keycode = 87; // # Some key code value
+			$(document).trigger(e);
 		}, 100);
 	  };
 	const button = document.getElementById("myBtn");
@@ -116,7 +122,7 @@ class HackNSlashDemo {
     const fov = 30;
     const aspect = window.innerWidth / window.innerHeight;
     const near = 1.0;
-    const far = 500.0;
+    const far = 600.0;
     this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     this._camera.position.set(25, 10, 25);
 
@@ -260,8 +266,8 @@ class HackNSlashDemo {
         object.traverse((e) => {
 			if (e.isMesh) {
 			
-				e.receiveShadow = true;
-				e.castShadow = true;
+				//e.receiveShadow = true;
+				//e.castShadow = true;
 			}
         });
         scene.add(object);
@@ -701,6 +707,7 @@ class HackNSlashDemo {
       this._RAF();
 
       this._threejs.render(this._scene, this._camera);
+	  //this._stats.update();
       this._Step(t - this._previousRAF);
       this._previousRAF = t;
     });

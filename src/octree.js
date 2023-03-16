@@ -616,10 +616,23 @@ export function addPointsFromBounding(mesh,presition,scene,debug) {
 export function detectColision(position,min,max) {
 	for (let i = position.x+min.x; i <position.x+max.x ; i++) {
 		for (let j = position.y+min.y; j < position.y+max.y; j++) {
-			for (let k = position.z+min.z; k < position.z+max.z; k++) {
-				if(octree.findOut(i,j,k)){
-					return true;
-				}
+			if(octree.findOut(i,j,position.z+min.z)||octree.findOut(i,j,position.z+max.z)){
+				return true;
+			}
+		}
+	}
+	for (let j = position.y+min.y; j < position.y+max.y; j++) {
+		for (let k = position.z+min.z; k < position.z+max.z; k++) {
+			if(octree.findOut(position.x+min.x,j,k)||octree.findOut(position.x+max.x,j,k)){
+				return true;
+			}
+		}
+		
+	}
+	for (let k = position.z+min.z; k < position.z+max.z; k++) {
+		for (let i = position.x+min.x; i <position.x+max.x ; i++) {
+			if(octree.findOut(i,position.y+min.y,k)||octree.findOut(i,position.y+max.y,k)){
+				return true;
 			}
 		}
 	}
