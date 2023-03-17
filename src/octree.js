@@ -445,7 +445,7 @@ var material_cold = new THREE.LineBasicMaterial({
 	color: 0x0000ff
 });
 
-export {octree};
+export {octree,v_debug};
 /**
  * function for init the octree
  * @param {THREE.Vector3} min Min value posible in the scene

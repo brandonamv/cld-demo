@@ -718,8 +718,8 @@ export const player_entity = (() => {
       ) {
         return;
       }
-	  if (!input._keys.forward&&!input._keys.backward&&!input._keys.left&&!input._keys.right)
-		return;
+	  // if (!input._keys.forward&&!input._keys.backward&&!input._keys.left&&!input._keys.right)
+		// return;
       const velocity = this._velocity;
       const frameDecceleration = new THREE.Vector3(
         velocity.x * this._decceleration.x,

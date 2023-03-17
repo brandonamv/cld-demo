@@ -20,7 +20,7 @@ import { Sky } from "./sky/sky.js";
 import { GLTFLoader } from "../node_modules/three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "../node_modules/three/examples/jsm/loaders/DRACOLoader.js";
 import * as OCTREE from "./octree.js";
-//import Stats from "../node_modules/three/examples/jsm/libs/stats.module.js"
+import Stats from "../node_modules/three/examples/jsm/libs/stats.module.js"
 
 class HackNSlashDemo {
   constructor() {
@@ -28,8 +28,10 @@ class HackNSlashDemo {
   }
 
   _Initialize() {
-	//this._stats = Stats();
-	//document.body.appendChild(this._stats.dom);
+	this._stats = Stats();
+	document.body.appendChild(this._stats.dom);
+  this._stats.dom.style.visibility="hidden";
+  this._stats.dom.style.left="90%";
     this._threejs = new THREE.WebGLRenderer({
       antialias: false,
     });
@@ -49,17 +51,21 @@ class HackNSlashDemo {
 		  .getElementById("container")
 		  .appendChild(this._threejs.domElement);
 		/*document.getElementById("mostrarmodalprev").style.visibility = "hidden"; */
-		setTimeout(() => {
-			document.getElementById("mostrarmodalprev").style.visibility = "hidden";
-			this._selected = true;
-			var e = jQuery.Event("keydown");
-			e.keycode = 87; // # Some key code value
-			$(document).trigger(e);
-		}, 100);
+		  setTimeout(() => {
+        document.getElementById("mostrarmodalprev").style.visibility = "hidden";
+        this._selected = true;
+		  }, 100);
+      
 	  };
 	const button = document.getElementById("myBtn");
 	button.addEventListener("click", ()=>{
 		OCTREE.setDebug(this._scene,false);
+    if (OCTREE.v_debug) {
+      this._stats.dom.style.visibility="visible";
+    } else {
+      this._stats.dom.style.visibility="hidden";
+    }
+    
 	})
    /*  document.getElementById("icon-bar-selector").onclick = () => {
       document
@@ -707,7 +713,7 @@ class HackNSlashDemo {
       this._RAF();
 
       this._threejs.render(this._scene, this._camera);
-	  //this._stats.update();
+	    this._stats.update();
       this._Step(t - this._previousRAF);
       this._previousRAF = t;
     });
