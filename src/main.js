@@ -128,7 +128,7 @@ class HackNSlashDemo {
     const fov = 30;
     const aspect = window.innerWidth / window.innerHeight;
     const near = 1.0;
-    const far = 600.0;
+    const far = 650.0;
     this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     this._camera.position.set(25, 10, 25);
 
