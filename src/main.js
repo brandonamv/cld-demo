@@ -156,7 +156,7 @@ class HackNSlashDemo {
 
     this._sun = light;
 
-    
+    OCTREE.newOctree(-600,600);
 
     //variable del cielo
     this._cielo = new Sky(this._scene, this._camera);
@@ -176,7 +176,7 @@ class HackNSlashDemo {
     // this._scene.add(this._ocean);
 
     this._entityManager = new entity_manager.EntityManager();
-	OCTREE.newOctree(new THREE.Vector3(-1000, -100, -1000), new THREE.Vector3(1000, 100, 1000));
+	//OCTREE.newOctree(new THREE.Vector3(-1000, -100, -1000), new THREE.Vector3(1000, 100, 1000));
     this._grid = new spatial_hash_grid.SpatialHashGrid(
       [
         [-1000, -1000],
@@ -299,7 +299,7 @@ class HackNSlashDemo {
 						color: '#'+color,
 					});
 					console.log(e.name,pos,material_cold.color); */
-					OCTREE.addPointsFromBounding(e,1,this._scene,false);
+					OCTREE.addPointsFromBounding(e,2,this._scene,false);
 					/* const traslation=new THREE.Matrix4().makeTranslation(e.position.x,e.position.y,e.position.z);
 					const rotation= new THREE.Matrix4().makeRotationFromEuler(e.rotation);
 					const scale= new THREE.Matrix4().makeScale(e.scale.x*4,e.scale.y*4,e.scale.z*4);

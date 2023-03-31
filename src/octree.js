@@ -10,7 +10,7 @@ const BottomRightBack= 6;
 const BottomLeftBack= 7;
 //se compara con un rango de error permitido
 function compareFind(x1,y1,z1,x2,y2,z2) {
-	if (Math.abs(x2-x1)<1&&Math.abs(y2-y1)<1&&Math.abs(z2-z1)<1) {
+	if (Math.abs(x2-x1)<2&&Math.abs(y2-y1)<2&&Math.abs(z2-z1)<2) {
 		return true;
 	}else{
 		return false;
@@ -39,31 +39,25 @@ class Octree{
 		// if point == (null, null, null), node is empty.
 		if (!arguments.length)
 			this.point=new Point();
-		
 		else if(arguments.length==3){
-			this.point= new Point(x1,y1,z1);
-			this.size=1;
+			this.point=new Point(x1,y1,z1);
 		}
-
 		else{
 			// This use to construct Octree
 			// with boundaries defined
-			this.size=0;
 			if (x2 < x1
 				|| y2 < y1
 				|| z2 < z1) {
 				//console.log("boundary points are not valid",{x2,y2,z2},{x1,y1,z1});
 				return;
 			}
+			this.children=new Array(8).fill(new Octree());
 			// if point == NULL, node is internal node.
-			this.size=8;
 			this.point = null;
 			// Represent the boundary of the cube
 			this.topLeftFront= new Point(x1, y1, z1);
 			this.bottomRightBack= new Point(x2, y2, z2);
-	
-			// Assigning null to the this.children
-			this.children=new Array(8).fill(new Octree());
+				
 		}
 	}
 
@@ -71,11 +65,7 @@ class Octree{
 	insert(x, y, z){
 
 		// If the point already exists in the octree
-		if (find(x, y, z)) {
-			console.log("Point already exist in the tree");
-			return false;
-		}
-
+		if (find(x, y, z))return false;
 		// If the point is out of bounds
 		if (x < this.topLeftFront.x
 			|| x > this.bottomRightBack.x
@@ -157,12 +147,7 @@ class Octree{
 			delete this.children[pos];
 			this.children[pos] = null;
 			if (pos == TopLeftFront) {
-				/* if (compare(this.topLeftFront.x,this.topLeftFront.y,this.topLeftFront.z,
-					midx,midy,midz)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true; 
-				} */
+				
 				this.children[pos] = new Octree(this.topLeftFront.x,
 										this.topLeftFront.y,
 										this.topLeftFront.z,
@@ -172,13 +157,8 @@ class Octree{
 			}
 
 			else if (pos == TopRightFront) {
-				/* if (compare(midx + 0.5,this.topLeftFront.y,this.topLeftFront.z,
-					this.bottomRightBack.x,midy,midz)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
-				this.children[pos] = new Octree(midx + 0.000001,
+				
+				this.children[pos] = new Octree(midx,
 										this.topLeftFront.y,
 										this.topLeftFront.z,
 										this.bottomRightBack.x,
@@ -186,85 +166,55 @@ class Octree{
 										midz);
 			}
 			else if (pos == BottomRightFront) {
-				/* if (compare(midx + 0.000001,midy + 0.000001,this.topLeftFront.z,
-					this.bottomRightBack.x,this.bottomRightBack.y,midz)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
-				this.children[pos] = new Octree(midx + 0.000001,
-										midy + 0.000001,
+				
+				this.children[pos] = new Octree(midx,
+										midy,
 										this.topLeftFront.z,
 										this.bottomRightBack.x,
 										this.bottomRightBack.y,
 										midz);
 			}
 			else if (pos == BottomLeftFront) {
-				/* if (compare(this.topLeftFront.x,midy + 0.000001,this.topLeftFront.z,
-					midx,this.bottomRightBack.y,midz)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
+				
 				this.children[pos] = new Octree(this.topLeftFront.x,
-										midy + 0.000001,
+										midy,
 										this.topLeftFront.z,
 										midx,
 										this.bottomRightBack.y,
 										midz);
 			}
 			else if (pos == TopLeftBottom) {
-				/* if (compare(this.topLeftFront.x,this.topLeftFront.y,midz + 0.000001,
-					midx,midy,this.bottomRightBack.z)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
+				
 				this.children[pos] = new Octree(this.topLeftFront.x,
 										this.topLeftFront.y,
-										midz + 0.000001,
+										midz,
 										midx,
 										midy,
 										this.bottomRightBack.z);
 			}
 			else if (pos == TopRightBottom) {
-				/* if (compare(midx + 0.000001,this.topLeftFront.y,midz + 0.000001,
-					this.bottomRightBack.x,midy,this.bottomRightBack.z)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
-				this.children[pos] = new Octree(midx + 0.000001,
+				
+				this.children[pos] = new Octree(midx,
 										this.topLeftFront.y,
-										midz + 0.000001,
+										midz,
 										this.bottomRightBack.x,
 										midy,
 										this.bottomRightBack.z);
 			}
 			else if (pos == BottomRightBack) {
-				/* if (compare(midx + 0.000001,midy + 0.000001,midz + 0.000001,
-					this.bottomRightBack.x,this.bottomRightBack.y,this.bottomRightBack.z)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
-				this.children[pos] = new Octree(midx + 0.000001,
-										midy + 0.000001,
-										midz + 0.000001,
+				
+				this.children[pos] = new Octree(midx,
+										midy,
+										midz,
 										this.bottomRightBack.x,
 										this.bottomRightBack.y,
 										this.bottomRightBack.z);
 			}
 			else if (pos == BottomLeftBack) {
-				/* if (compare(this.topLeftFront.x,midy + 0.000001,midz + 0.000001,
-					midx,this.bottomRightBack.y,this.bottomRightBack.z)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
+				
 				this.children[pos] = new Octree(this.topLeftFront.x,
-										midy + 0.000001,
-										midz + 0.000001,
+										midy,
+										midz,
 										midx,
 										this.bottomRightBack.y,
 										this.bottomRightBack.z);
@@ -276,7 +226,7 @@ class Octree{
 			if (!this.children[pos].insert(x, y, z)) {
 				console.log("error",x,y,z);
 			} */
-			if (this.children[pos].size>1) {
+			if (this.children[pos].point==null) {
 				this.children[pos].insert(x_, y_, z_);
 				this.children[pos].insert(x, y, z);
 				return true;
@@ -361,7 +311,7 @@ class Octree{
             return x==this.children[pos].point.x&&y==this.children[pos].point.y&&z==this.children[pos].point.z;
         }
     }
-	findOut(x, y, z)
+	findOut(x, y, z, bounding)
     {
         // If point is out of bound
         if (x < this.topLeftFront.x
@@ -420,12 +370,21 @@ class Octree{
  
         // If an internal node is encountered
         if (this.children[pos].point == null) {
-            return this.children[pos].findOut(x, y, z);
+            return this.children[pos].findOut(x, y, z, bounding);
         }
  
         // If an empty node is encountered
         else if (this.children[pos].point.x == null) {
-            return false;
+			if (this.bottomRightBack.x-this.topLeftFront.x>bounding) {
+				return false;
+			} else {
+				for (let i = 0; i < 8; i++) {
+					if(this.children[i].point==null){
+						return true;
+					}
+				}
+				return false;
+			}
         }
         else {
             // If node is found with
@@ -448,11 +407,11 @@ var material_cold = new THREE.LineBasicMaterial({
 export {octree,v_debug};
 /**
  * function for init the octree
- * @param {THREE.Vector3} min Min value posible in the scene
- * @param {THREE.Vector3} max Max value posible in the scene
+ * @param {Number} min Min value posible in the scene
+ * @param {Number} max Max value posible in the scene
  */
 export function newOctree(min,max) {
-	octree=new Octree(min.x,min.y,min.z,max.x,max.y,max.z);
+	octree=new Octree(min,min,min,max,max,max);
 }
 
 /**
@@ -478,12 +437,12 @@ export function addPointsFromMesh(mesh,presition,scene,debug) {
 		// const pointb=new THREE.Vector3(pos.array[index.array[i*3+1]*3],pos.array[index.array[i*3+1]*3+1],pos.array[index.array[i*3+1]*3+2]).applyMatrix4(mesh.matrixWorld);
 		// const pointc=new THREE.Vector3(pos.array[index.array[i*3+2]*3],pos.array[index.array[i*3+2]*3+1],pos.array[index.array[i*3+2]*3+2]).applyMatrix4(mesh.matrixWorld);
 		point.set(Number(point.x.toFixed(presition)),Number(point.y.toFixed(presition)),Number(point.z.toFixed(presition)));
-		if (!octree.find(point.x,point.y,point.z)) {
+		//if (!octree.find(point.x,point.y,point.z)) {
 			if(octree.insert(point.x,point.y,point.z)){
 				//ubicacion.push({x:point.x,y:point.y,z:point.z});
 				debugs.push(point);
 			}
-		} 	
+		//} 	
 		/*if (!octree.find(Number(pointb.x.toFixed(presition)),Number(pointb.y.toFixed(presition)),Number(pointb.z.toFixed(presition)))) {
 			if(octree.insert(Number(pointb.x.toFixed(presition)),Number(pointb.y.toFixed(presition)),Number(pointb.z.toFixed(presition)))){
 				//ubicacion.push({x:Number(pointb.x.toFixed(presition)),y:Number(pointb.y.toFixed(presition)),z:Number(pointb.z.toFixed(presition))});
@@ -580,14 +539,14 @@ export function addPointsFromBounding(mesh,presition,scene,debug) {
 			for (let k = min.z-.1; k <= max.z+.1; k+=pres) {
 				const point=new THREE.Vector3(j,i,k).applyMatrix4(mesh.matrixWorld);
 				point.set(Number(point.x.toFixed(presition)),Number(point.y.toFixed(presition)),Number(point.z.toFixed(presition)));
-				if (!octree.find(point.x,point.y,point.z)) {
+				//if (!octree.find(point.x,point.y,point.z)) {
 					if(octree.insert(point.x,point.y,point.z)){
 						//debugs.push(point);
 						points.push(point.x);
 						points.push(point.y);
 						points.push(point.z);
 					}
-				}
+				//}
 			}
 		}
 	}
@@ -614,7 +573,7 @@ export function addPointsFromBounding(mesh,presition,scene,debug) {
  * @param {THREE.Vector3} max the object.max
  */
 export function detectColision(position,min,max) {
-	for (let i = position.x+min.x; i <position.x+max.x ; i++) {
+	/* for (let i = position.x+min.x; i <position.x+max.x ; i++) {
 		for (let j = position.y+min.y; j < position.y+max.y; j++) {
 			if(octree.findOut(i,j,position.z+min.z)||octree.findOut(i,j,position.z+max.z)){
 				return true;
@@ -635,8 +594,20 @@ export function detectColision(position,min,max) {
 				return true;
 			}
 		}
+	} */
+	const center=new THREE.Vector3((max.x+min.x)/2,(max.y+min.y)/2,(max.z+min.z)/2);
+	const distance= new THREE.Vector3(max.x-min.x,max.y-min.y,max.z-min.z);
+	let range=0;
+	if (distance.x<distance.y<distance.z) {
+		range=distance.x;
+	}else{
+		if (distance.y<distance.z) {
+			range=distance.y;
+		} else {
+			range=distance.z;
+		}
 	}
-	return false;
+	return octree.findOut(position.x+center.x,position.y+center.y,position.z+center.z,range);
 }
 
 /** 
