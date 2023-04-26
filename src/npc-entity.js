@@ -1,6 +1,6 @@
-import * as THREE from '../node_modules/three/build/three.module.js';
+import * as THREE from 'three';
 
-import {FBXLoader} from '../node_modules/three/examples/jsm/loaders/FBXLoader.js';
+import {FBXLoader} from 'three/addons/loaders/FBXLoader.js';
 
 import {finite_state_machine} from './finite-state-machine.js';
 import {entity} from './entity.js';

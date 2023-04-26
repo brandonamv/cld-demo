@@ -8,7 +8,7 @@
  * https://github.com/swift502/Sketchbook
  */
 
-import * as THREE from '../../node_modules/three/build/three.module.js';
+import * as THREE from 'three';
 
  export let WaterShader = {
  

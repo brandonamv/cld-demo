@@ -1,5 +1,5 @@
 import { SkyShader } from './skyShader.js';
-import * as THREE from '../../node_modules/three/build/three.module.js';
+import * as THREE from 'three';
 
 export class Sky extends THREE.	Object3D 
 {

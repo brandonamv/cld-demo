@@ -1,4 +1,4 @@
-import * as THREE from '../node_modules/three/build/three.module.js';
+import * as THREE from 'three';
 import { third_person_camera } from "./third-person-camera.js";
 import { entity_manager } from "./entity-manager.js";
 import { player_entity } from "./player-entity.js";
@@ -17,10 +17,10 @@ import { equip_weapon_component } from "./equip-weapon-component.js";
 import { attack_controller } from "./attacker-controller.js";
 import { Ocean } from "./water/water.js";
 import { Sky } from "./sky/sky.js";
-import { GLTFLoader } from "../node_modules/three/examples/jsm/loaders/GLTFLoader.js";
-import { DRACOLoader } from "../node_modules/three/examples/jsm/loaders/DRACOLoader.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import * as OCTREE from "./octree.js";
-import Stats from "../node_modules/three/examples/jsm/libs/stats.module.js"
+import Stats from "three/addons/libs/stats.module.js"
 
 class HackNSlashDemo {
   constructor() {
@@ -60,11 +60,11 @@ class HackNSlashDemo {
 	const button = document.getElementById("myBtn");
 	button.addEventListener("click", ()=>{
 		OCTREE.setDebug(this._scene,false);
-    if (OCTREE.v_debug) {
-      this._stats.dom.style.visibility="visible";
-    } else {
-      this._stats.dom.style.visibility="hidden";
-    }
+		if (OCTREE.v_debug) {
+		this._stats.dom.style.visibility="visible";
+		} else {
+		this._stats.dom.style.visibility="hidden";
+		}
     
 	})
    /*  document.getElementById("icon-bar-selector").onclick = () => {
@@ -128,7 +128,7 @@ class HackNSlashDemo {
     const fov = 30;
     const aspect = window.innerWidth / window.innerHeight;
     const near = 1.0;
-    const far = 650.0;
+    const far = 3000.0;
     this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     this._camera.position.set(25, 10, 25);
 
@@ -159,7 +159,7 @@ class HackNSlashDemo {
     
 
     //variable del cielo
-    this._cielo = new Sky(this._scene, this._camera);
+    //this._cielo = new Sky(this._scene, this._camera);
 
     //variable del agua
     // this._ocean = new THREE.Mesh(
@@ -176,7 +176,7 @@ class HackNSlashDemo {
     // this._scene.add(this._ocean);
 
     this._entityManager = new entity_manager.EntityManager();
-	OCTREE.newOctree(new THREE.Vector3(-1000, -100, -1000), new THREE.Vector3(1000, 100, 1000));
+	OCTREE.newOctree(-2000,2000);
     this._grid = new spatial_hash_grid.SpatialHashGrid(
       [
         [-1000, -1000],
@@ -249,11 +249,11 @@ class HackNSlashDemo {
     const loader = new GLTFLoader(this._manager);
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath(
-      "https://assets2022.s3.amazonaws.com/Files/Draco/"
+      "https://assets2022.s3.amazonaws.com/Files/TEST-THREE-0.151.0/draco/"
     );
     loader.setDRACOLoader(dracoLoader);
     loader.setPath(
-      "https://assets2022.s3.amazonaws.com/Dragon/demo/46/"
+      "https://assets2022.s3.amazonaws.com/Dragon/ozoneuniverse/2035/"
     );
 	
 	
@@ -267,57 +267,55 @@ class HackNSlashDemo {
       loader.load(object, (gltf) => {
         const object = gltf.scene;
         object.scale.set(4, 4, 4);
-		object.updateWorldMatrix(true,true);
+		scene.add(object);
+		object.updateWorldMatrix( true, true );
 		object.updateMatrixWorld();
-        object.traverse((e) => {
-			if (e.isMesh) {
-			
-				//e.receiveShadow = true;
-				//e.castShadow = true;
-			}
-        });
-        scene.add(object);
+		//if (index==1) {
+			OCTREE.addPointsFromMesh(object,1,this._scene,true);
+		//}
+		
+        
       });
     });
-	loader.setPath(
-		"https://assets2022.s3.amazonaws.com/Dragon/demo/46/"
-	  );
+	// loader.setPath(
+	// 	"https://assets2022.s3.amazonaws.com/Dragon/demo/46/"
+	//   );
 	
-	loader.load("CLD.gltf", (gltf) => {
-        const object = gltf.scene;
-		object.scale.set(4, 4, 4);
-		object.updateWorldMatrix(true,true);
-		object.updateMatrixWorld();
-        object.traverse((e) => {
-			if (e.isMesh) {
-					/* let color=pos.count.toString(16);
-					const n=6-color.length;
-					for (let i = 0; i < n; i++) {
-						color=color.concat("0");
-					}
-					const material_cold = new THREE.LineBasicMaterial({
-						color: '#'+color,
-					});
-					console.log(e.name,pos,material_cold.color); */
-					OCTREE.addPointsFromBounding(e,1,this._scene,false);
-					/* const traslation=new THREE.Matrix4().makeTranslation(e.position.x,e.position.y,e.position.z);
-					const rotation= new THREE.Matrix4().makeRotationFromEuler(e.rotation);
-					const scale= new THREE.Matrix4().makeScale(e.scale.x*4,e.scale.y*4,e.scale.z*4);
-					const model=traslation.multiply(rotation.multiply(scale));
-					for (let i = 0; i < pos.count; i++) {
-						points.push(new THREE.Vector3(pos.array[i*3],pos.array[i*3+1],pos.array[i*3+2]).applyMatrix4(model));
-						if (Math.round(points[points.length-1].y)==0) {
+	// loader.load("CLD.gltf", (gltf) => {
+    //     const object = gltf.scene;
+	// 	object.scale.set(4, 4, 4);
+	// 	object.updateWorldMatrix(true,true);
+	// 	object.updateMatrixWorld();
+    //     object.traverse((e) => {
+	// 		if (e.isMesh) {
+	// 				/* let color=pos.count.toString(16);
+	// 				const n=6-color.length;
+	// 				for (let i = 0; i < n; i++) {
+	// 					color=color.concat("0");
+	// 				}
+	// 				const material_cold = new THREE.LineBasicMaterial({
+	// 					color: '#'+color,
+	// 				});
+	// 				console.log(e.name,pos,material_cold.color); */
+	// 				OCTREE.addPointsFromBounding(e,1,this._scene,false);
+	// 				/* const traslation=new THREE.Matrix4().makeTranslation(e.position.x,e.position.y,e.position.z);
+	// 				const rotation= new THREE.Matrix4().makeRotationFromEuler(e.rotation);
+	// 				const scale= new THREE.Matrix4().makeScale(e.scale.x*4,e.scale.y*4,e.scale.z*4);
+	// 				const model=traslation.multiply(rotation.multiply(scale));
+	// 				for (let i = 0; i < pos.count; i++) {
+	// 					points.push(new THREE.Vector3(pos.array[i*3],pos.array[i*3+1],pos.array[i*3+2]).applyMatrix4(model));
+	// 					if (Math.round(points[points.length-1].y)==0) {
 							
-						}
-					} */
-					/* const geometry=new THREE.BufferGeometry().setFromPoints( points );
-					const line=new THREE.Line(geometry,material_cold);
-					scene.add(line); */
+	// 					}
+	// 				} */
+	// 				/* const geometry=new THREE.BufferGeometry().setFromPoints( points );
+	// 				const line=new THREE.Line(geometry,material_cold);
+	// 				scene.add(line); */
 				
-			}
-        });
-		//scene.add(object);
-      });
+	// 		}
+    //     });
+	// 	//scene.add(object);
+    //   });
 
   }
 
@@ -726,16 +724,16 @@ class HackNSlashDemo {
         timeElapsed * 0.001 * 1.3
       );
       //paso de tiempo del sol
-      let intensidad = this._cielo._phi;
-      intensidad += 0.1 / 8;
-      this._cielo.phi = intensidad % 180; //la intensidad debe estar entre 0 y 180
-      this._sun.position.set(
-        this._cielo.sunPosition.x,
-        this._cielo.sunPosition.y,
-        this._cielo.sunPosition.z
-      ); //seteando la posicion del sol
-      this._sun.intensity = this._cielo.hemiLight.intensity;
-      this._cielo.update();
+    //   let intensidad = this._cielo._phi;
+    //   intensidad += 0.1 / 8;
+    //   this._cielo.phi = intensidad % 180; //la intensidad debe estar entre 0 y 180
+    //   this._sun.position.set(
+    //     this._cielo.sunPosition.x,
+    //     this._cielo.sunPosition.y,
+    //     this._cielo.sunPosition.z
+    //   ); //seteando la posicion del sol
+    //   this._sun.intensity = this._cielo.hemiLight.intensity;
+    //   this._cielo.update();
       this._entityManager.Update(timeElapsedS*1.1);
 
       //mover el agua

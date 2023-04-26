@@ -1,5 +1,4 @@
-import * as THREE from '../node_modules/three/build/three.module.js';
-
+import * as THREE from 'three';
 const TopLeftFront= 0;
 const TopRightFront= 1;
 const BottomRightFront= 2;
@@ -34,48 +33,69 @@ class Point{
 	}
 }
 
+Point.prototype["=="]=function (operand) {
+	return this.x==operand.x&&this.y==operand.y&&this.z==operand.z;
+}
+class Triangle{
+	/**
+	 * function for init the triangle
+	 * @param {THREE.Vector3} a 
+	 * @param {THREE.Vector3} b 
+	 * @param {THREE.Vector3} c 
+	 * @param {THREE.Vector3} center 
+	 */
+	constructor(a,b,c,center){
+		if (!arguments.length){
+			this.a=null;
+			this.b=null;
+			this.c=null;
+			this.center=null;
+		} else {
+			this.a=new Point(a.x,a.y,a.z);
+			this.b=new Point(b.x,b.y,b.z);
+			this.c=new Point(c.x,c.y,c.z);
+			this.center=new Point(center.x,center.y,center.z);
+		}
+	}
+}
+
 class Octree{
 	constructor(x1,y1,z1,x2,y2,z2){
 		// if point == (null, null, null), node is empty.
 		if (!arguments.length)
-			this.point=new Point();
-		
-		else if(arguments.length==3){
-			this.point= new Point(x1,y1,z1);
-			this.size=1;
+			this.triangle=new Triangle();
+		else if(arguments.length==1){
+			this.triangle=x1;
 		}
-
 		else{
 			// This use to construct Octree
 			// with boundaries defined
-			this.size=0;
 			if (x2 < x1
 				|| y2 < y1
 				|| z2 < z1) {
 				//console.log("boundary points are not valid",{x2,y2,z2},{x1,y1,z1});
 				return;
 			}
+			this.children=new Array(8).fill(new Octree());
 			// if point == NULL, node is internal node.
-			this.size=8;
-			this.point = null;
+			this.triangle = null;
 			// Represent the boundary of the cube
 			this.topLeftFront= new Point(x1, y1, z1);
 			this.bottomRightBack= new Point(x2, y2, z2);
-	
-			// Assigning null to the this.children
-			this.children=new Array(8).fill(new Octree());
+				
 		}
 	}
-
-	// Function to insert a point in the octree
-	insert(x, y, z){
-
+	/**
+	 * Function to insert a triangle in the octree
+	 * @param {Triangle} t triangle to add
+	 * @returns Boolean
+	 */
+	insert(t){
+		const x=t.center.x;
+		const y=t.center.y;
+		const z=t.center.z;
 		// If the point already exists in the octree
-		if (find(x, y, z)) {
-			console.log("Point already exist in the tree");
-			return false;
-		}
-
+		if (this.find(t))return false;
 		// If the point is out of bounds
 		if (x < this.topLeftFront.x
 			|| x > this.bottomRightBack.x
@@ -133,36 +153,33 @@ class Octree{
 		}
 
 		// If an internal node is encountered
-		if (this.children[pos].point == null) {
-			this.children[pos].insert(x, y, z);
-			return true;
+		if (this.children[pos].triangle == null) {
+			return this.children[pos].insert(t);
 		}
 
 		// If an empty node is encountered
-		else if (this.children[pos].point.x == null) {
+		else if (this.children[pos].triangle.a == null) {
 			delete this.children[pos];
-			this.children[pos] = new Octree(x, y, z);
+			this.children[pos] = new Octree(t);
 			return true;
 		}
 		else {
-			if (this.children[pos].point.x==x &&
-				this.children[pos].point.y==y &&
-				this.children[pos].point.z==z ) {
+			if (this.children[pos].triangle.a==t.a &&
+				this.children[pos].triangle.b==t.b &&
+				this.children[pos].triangle.c==t.c ) {
 				return false;
 			}
-			const x_ = this.children[pos].point.x,
-				y_ = this.children[pos].point.y,
-				z_ = this.children[pos].point.z;
-			
+			/* const x_ = this.children[pos].triangle.x,
+				y_ = this.children[pos].triangle.y,
+				z_ = this.children[pos].triangle.z; */
+			const t_ = this.children[pos].triangle;
+			if (Math.abs(this.topLeftFront.x-midx)<1||Math.abs(this.topLeftFront.y-midy)<1||Math.abs(this.topLeftFront.z-midz)<1) {
+				return false;
+			}
 			delete this.children[pos];
 			this.children[pos] = null;
 			if (pos == TopLeftFront) {
-				/* if (compare(this.topLeftFront.x,this.topLeftFront.y,this.topLeftFront.z,
-					midx,midy,midz)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true; 
-				} */
+				
 				this.children[pos] = new Octree(this.topLeftFront.x,
 										this.topLeftFront.y,
 										this.topLeftFront.z,
@@ -172,13 +189,8 @@ class Octree{
 			}
 
 			else if (pos == TopRightFront) {
-				/* if (compare(midx + 0.5,this.topLeftFront.y,this.topLeftFront.z,
-					this.bottomRightBack.x,midy,midz)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
-				this.children[pos] = new Octree(midx + 0.000001,
+				
+				this.children[pos] = new Octree(midx,
 										this.topLeftFront.y,
 										this.topLeftFront.z,
 										this.bottomRightBack.x,
@@ -186,85 +198,55 @@ class Octree{
 										midz);
 			}
 			else if (pos == BottomRightFront) {
-				/* if (compare(midx + 0.000001,midy + 0.000001,this.topLeftFront.z,
-					this.bottomRightBack.x,this.bottomRightBack.y,midz)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
-				this.children[pos] = new Octree(midx + 0.000001,
-										midy + 0.000001,
+				
+				this.children[pos] = new Octree(midx,
+										midy,
 										this.topLeftFront.z,
 										this.bottomRightBack.x,
 										this.bottomRightBack.y,
 										midz);
 			}
 			else if (pos == BottomLeftFront) {
-				/* if (compare(this.topLeftFront.x,midy + 0.000001,this.topLeftFront.z,
-					midx,this.bottomRightBack.y,midz)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
+				
 				this.children[pos] = new Octree(this.topLeftFront.x,
-										midy + 0.000001,
+										midy,
 										this.topLeftFront.z,
 										midx,
 										this.bottomRightBack.y,
 										midz);
 			}
 			else if (pos == TopLeftBottom) {
-				/* if (compare(this.topLeftFront.x,this.topLeftFront.y,midz + 0.000001,
-					midx,midy,this.bottomRightBack.z)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
+				
 				this.children[pos] = new Octree(this.topLeftFront.x,
 										this.topLeftFront.y,
-										midz + 0.000001,
+										midz,
 										midx,
 										midy,
 										this.bottomRightBack.z);
 			}
 			else if (pos == TopRightBottom) {
-				/* if (compare(midx + 0.000001,this.topLeftFront.y,midz + 0.000001,
-					this.bottomRightBack.x,midy,this.bottomRightBack.z)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
-				this.children[pos] = new Octree(midx + 0.000001,
+				
+				this.children[pos] = new Octree(midx,
 										this.topLeftFront.y,
-										midz + 0.000001,
+										midz,
 										this.bottomRightBack.x,
 										midy,
 										this.bottomRightBack.z);
 			}
 			else if (pos == BottomRightBack) {
-				/* if (compare(midx + 0.000001,midy + 0.000001,midz + 0.000001,
-					this.bottomRightBack.x,this.bottomRightBack.y,this.bottomRightBack.z)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
-				this.children[pos] = new Octree(midx + 0.000001,
-										midy + 0.000001,
-										midz + 0.000001,
+				
+				this.children[pos] = new Octree(midx,
+										midy,
+										midz,
 										this.bottomRightBack.x,
 										this.bottomRightBack.y,
 										this.bottomRightBack.z);
 			}
 			else if (pos == BottomLeftBack) {
-				/* if (compare(this.topLeftFront.x,midy + 0.000001,midz + 0.000001,
-					midx,this.bottomRightBack.y,this.bottomRightBack.z)){
-					this.children[pos] = new Octree(x,y,z);
-					
-					return true;
-				} */
+				
 				this.children[pos] = new Octree(this.topLeftFront.x,
-										midy + 0.000001,
-										midz + 0.000001,
+										midy,
+										midz,
 										midx,
 										this.bottomRightBack.y,
 										this.bottomRightBack.z);
@@ -276,12 +258,12 @@ class Octree{
 			if (!this.children[pos].insert(x, y, z)) {
 				console.log("error",x,y,z);
 			} */
-			if (this.children[pos].size>1) {
-				this.children[pos].insert(x_, y_, z_);
-				this.children[pos].insert(x, y, z);
+			if (this.children[pos].triangle==null) {
+				this.children[pos].insert(t_);
+				this.children[pos].insert(t);
 				return true;
 			}else{
-				this.children[pos]=new Octree(x,y,z);
+				this.children[pos]=new Octree(t);
 				return true;
 			}
 			
@@ -289,8 +271,11 @@ class Octree{
 	}
 	// Function that returns true if the point
     // (x, y, z) exists in the octree
-    find(x, y, z)
+    find(t)
     {
+		const x=t.center.x;
+		const y=t.center.y;
+		const z=t.center.z;
         // If point is out of bound
         if (x < this.topLeftFront.x
             || x > this.bottomRightBack.x
@@ -347,22 +332,25 @@ class Octree{
         }
  
         // If an internal node is encountered
-        if (this.children[pos].point == null) {
-            return this.children[pos].find(x, y, z);
+        if (this.children[pos].triangle == null) {
+            return this.children[pos].find(t);
         }
  
         // If an empty node is encountered
-        else if (this.children[pos].point.x == null) {
+        else if (this.children[pos].triangle.a == null) {
             return false;
         }
         else {
             // If node is found with
             // the given value
-            return x==this.children[pos].point.x&&y==this.children[pos].point.y&&z==this.children[pos].point.z;
+            return t.a==this.children[pos].triangle.a&&
+			t.b==this.children[pos].triangle.b&&
+			t.c==this.children[pos].triangle.c;
         }
     }
-	findOut(x, y, z)
+	findOut(x, y, z, bounding)
     {
+		return false;
         // If point is out of bound
         if (x < this.topLeftFront.x
             || x > this.bottomRightBack.x
@@ -420,12 +408,21 @@ class Octree{
  
         // If an internal node is encountered
         if (this.children[pos].point == null) {
-            return this.children[pos].findOut(x, y, z);
+            return this.children[pos].findOut(x, y, z, bounding);
         }
  
         // If an empty node is encountered
         else if (this.children[pos].point.x == null) {
-            return false;
+			if (this.bottomRightBack.x-this.topLeftFront.x>bounding) {
+				return false;
+			} else {
+				for (let i = 0; i < 8; i++) {
+					if(this.children[i].point==null){
+						return true;
+					}
+				}
+				return false;
+			}
         }
         else {
             // If node is found with
@@ -438,6 +435,7 @@ class Octree{
 }
 export {Octree};
 //https://www.geeksforgeeks.org/octree-insertion-and-searching/
+
 var octree;
 var ubicacion=[];
 var v_debug=false;
@@ -448,101 +446,92 @@ var material_cold = new THREE.LineBasicMaterial({
 export {octree,v_debug};
 /**
  * function for init the octree
- * @param {THREE.Vector3} min Min value posible in the scene
- * @param {THREE.Vector3} max Max value posible in the scene
+ * @param {Number} min Min value posible in the scene
+ * @param {Number} max Max value posible in the scene
  */
 export function newOctree(min,max) {
-	octree=new Octree(min.x,min.y,min.z,max.x,max.y,max.z);
+	octree=new Octree(min,min,min,max,max,max);
 }
 
 /**
  * Add points from object mesh
- * @param {THREE.Mesh} mesh object mesh
+ * @param {THREE.Scene} mesh object scene
  * @param {Number} presition determine number of points detail to be saved
  * @param {THREE.Scene} scene mother scene
  * @param {Boolean} debug set visible/invisible collision lines
  * 
  */
 export function addPointsFromMesh(mesh,presition,scene,debug) {
-	const debugs=[];
+	const points=[];
+	mesh.traverse((obj)=>{
+		if (obj.isMesh) {
+			let geometry, isTemp = false;
+
+			if ( obj.geometry.index !== null ) {
+
+				isTemp = true;
+				geometry = obj.geometry.toNonIndexed();
+
+			} else {
+
+				geometry = obj.geometry;
+
+			}
+			const positionAttribute = geometry.getAttribute( 'position' );
+
+			for ( let i = 0; i < positionAttribute.count; i += 3 ) {
+
+				const v1 = new THREE.Vector3().fromBufferAttribute( positionAttribute, i );
+				const v2 = new THREE.Vector3().fromBufferAttribute( positionAttribute, i + 1 );
+				const v3 = new THREE.Vector3().fromBufferAttribute( positionAttribute, i + 2 );
+
+				v1.applyMatrix4( obj.matrixWorld );
+				v2.applyMatrix4( obj.matrixWorld );
+				v3.applyMatrix4( obj.matrixWorld );
+				let t=new THREE.Vector3();
+				new THREE.Triangle(v1,v2,v3).getMidpoint(t);
+				//console.log(t);
+				if (octree.insert(new Triangle( v1, v2, v3 , t))) {
+					
+					points.push(v1.x);
+					points.push(v1.y);
+					points.push(v1.z);
+					points.push(v2.x);
+					points.push(v2.y);
+					points.push(v2.z);
+					points.push(v3.x);
+					points.push(v3.y);
+					points.push(v3.z);
+					points.push(t.x);
+					points.push(t.y);
+					points.push(t.z);
+				}
+				
+
+			}
+			if ( isTemp ) {
+
+				geometry.dispose();
+
+			}
+		}
+	})
 	
-	const pos=mesh.geometry.attributes.position;
-	/* const traslation=new THREE.Matrix4().makeTranslation(mesh.position.x,mesh.position.y,mesh.position.z);
-	const rotation= new THREE.Matrix4().makeRotationFromEuler(mesh.rotation);
-	const scale= new THREE.Matrix4().makeScale(mesh.scale.x*4,mesh.scale.y*4,mesh.scale.z*4);
-	const model=traslation.multiply(rotation.multiply(scale)); */
-	const index=mesh.geometry.index;
 	
-	for (let i = 0; i < index.count/3; i++) {
-		const point=new THREE.Vector3(pos.array[index.array[i*3]*3],pos.array[index.array[i*3]*3+1],pos.array[index.array[i*3]*3+2]).applyMatrix4(mesh.matrixWorld);
-		// const pointb=new THREE.Vector3(pos.array[index.array[i*3+1]*3],pos.array[index.array[i*3+1]*3+1],pos.array[index.array[i*3+1]*3+2]).applyMatrix4(mesh.matrixWorld);
-		// const pointc=new THREE.Vector3(pos.array[index.array[i*3+2]*3],pos.array[index.array[i*3+2]*3+1],pos.array[index.array[i*3+2]*3+2]).applyMatrix4(mesh.matrixWorld);
-		point.set(Number(point.x.toFixed(presition)),Number(point.y.toFixed(presition)),Number(point.z.toFixed(presition)));
-		if (!octree.find(point.x,point.y,point.z)) {
-			if(octree.insert(point.x,point.y,point.z)){
-				//ubicacion.push({x:point.x,y:point.y,z:point.z});
-				debugs.push(point);
-			}
-		} 	
-		/*if (!octree.find(Number(pointb.x.toFixed(presition)),Number(pointb.y.toFixed(presition)),Number(pointb.z.toFixed(presition)))) {
-			if(octree.insert(Number(pointb.x.toFixed(presition)),Number(pointb.y.toFixed(presition)),Number(pointb.z.toFixed(presition)))){
-				//ubicacion.push({x:Number(pointb.x.toFixed(presition)),y:Number(pointb.y.toFixed(presition)),z:Number(pointb.z.toFixed(presition))});
-				debugs.push(new THREE.Vector3(Number(pointb.x.toFixed(presition)),Number(pointb.y.toFixed(presition)),Number(pointb.z.toFixed(presition))));
-			}
-		} 
-		if (!octree.find(Number(pointc.x.toFixed(presition)),Number(pointc.y.toFixed(presition)),Number(pointc.z.toFixed(presition)))) {
-			if(octree.insert(Number(pointc.x.toFixed(presition)),Number(pointc.y.toFixed(presition)),Number(pointc.z.toFixed(presition)))){
-				//ubicacion.push({x:Number(pointc.x.toFixed(presition)),y:Number(pointc.y.toFixed(presition)),z:Number(pointc.z.toFixed(presition))});
-				debugs.push(new THREE.Vector3(Number(pointc.x.toFixed(presition)),Number(pointc.y.toFixed(presition)),Number(pointc.z.toFixed(presition))));
-			}
-		}  */
-		// drawLine(Number(pointa.x.toFixed(presition)),Number(pointa.y.toFixed(presition)),Number(pointa.z.toFixed(presition)),Number(pointb.x.toFixed(presition)),Number(pointb.y.toFixed(presition)),Number(pointb.z.toFixed(presition)));
-		// drawLine(Number(pointa.x.toFixed(presition)),Number(pointa.y.toFixed(presition)),Number(pointa.z.toFixed(presition)),Number(pointc.x.toFixed(presition)),Number(pointc.y.toFixed(presition)),Number(pointc.z.toFixed(presition)));
-		// drawLine(Number(pointc.x.toFixed(presition)),Number(pointc.y.toFixed(presition)),Number(pointc.z.toFixed(presition)),Number(pointb.x.toFixed(presition)),Number(pointb.y.toFixed(presition)),Number(pointb.z.toFixed(presition)));
-	}
-	// if (!model.equals(mesh.matrixWorld)) {
-	// 	console.log("no agrupados");
-	// }else{
-		/* if (n%3!=0) {
-			console.log(mesh);
-			material_cold = new THREE.LineBasicMaterial({
-				color: 0x00ff00
-			}); 
-		} else{
-			
-			material_cold = new THREE.LineBasicMaterial({
-				color: 0xff0000
-			});	
-		} */
-	//}
-	/* let material_cold = new THREE.LineBasicMaterial({
+	var dotGeometry = new THREE.BufferGeometry();
+	dotGeometry.setAttribute( 'position', new THREE.Float32BufferAttribute( points, 3 ) );
+	var dotMaterial = new THREE.PointsMaterial( { size: 1, color: 0x00ff00 } );
+	var dot = new THREE.Points( dotGeometry, dotMaterial );
+	/* const material = new THREE.LineBasicMaterial({
 		color: 0x0000ff
-	}); */
-	
-	
-	// for (let i = 0; i < pos.count; i++) {
-	// 	const point=new THREE.Vector3(pos.array[i*3],pos.array[i*3+1],pos.array[i*3+2]).applyMatrix4(mesh.matrixWorld);
-	// 	if (!octree.find(Number(point.x.toFixed(presition)),Number(point.y.toFixed(presition)),Number(point.z.toFixed(presition)))) {
-	// 		if(octree.insert(Number(point.x.toFixed(presition)),Number(point.y.toFixed(presition)),Number(point.z.toFixed(presition)))){
-	// 			//ubicacion.push({x:Number(point.x.toFixed(presition)),y:Number(point.y.toFixed(presition)),z:Number(point.z.toFixed(presition))});
-	// 			debugs.push(new THREE.Vector3(Number(point.x.toFixed(presition)),Number(point.y.toFixed(presition)),Number(point.z.toFixed(presition))));
-	// 		}
-	// 	} 
-	// }
-	
-	const geometry=new THREE.BufferGeometry().setFromPoints( debugs );
-	/* var geometry = new THREE.BufferGeometry();
-	var positions = new Float32Array( debugs.length * 3 ); 
-	geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) ); */
-	const line=new THREE.Line(geometry,material_cold);
-	line.visible=debug;
-	v_debug=debug;
-	line.name='debug';
-	scene.add(line);
-	/* ubicacion.forEach(e=>{
-		if(!octree.findOut(e.x,e.y,e.z))
-			console.log("no encontro");
-	}) */
+	});
+	const geometry = new THREE.BufferGeometry().setFromPoints( points );
+
+	const dot = new THREE.Line( geometry, material ); */
+
+	dot.visible=debug;
+	dot.name='debug'
+	scene.add( dot );
 }
 
 /**
@@ -614,29 +603,19 @@ export function addPointsFromBounding(mesh,presition,scene,debug) {
  * @param {THREE.Vector3} max the object.max
  */
 export function detectColision(position,min,max) {
-	for (let i = position.x+min.x; i <position.x+max.x ; i++) {
-		for (let j = position.y+min.y; j < position.y+max.y; j++) {
-			if(octree.findOut(i,j,position.z+min.z)||octree.findOut(i,j,position.z+max.z)){
-				return true;
-			}
+	const center=new THREE.Vector3((max.x+min.x)/2,(max.y+min.y)/2,(max.z+min.z)/2);
+	const distance= new THREE.Vector3(max.x-min.x,max.y-min.y,max.z-min.z);
+	let range=0;
+	if (distance.x<distance.y<distance.z) {
+		range=distance.x;
+	}else{
+		if (distance.y<distance.z) {
+			range=distance.y;
+		} else {
+			range=distance.z;
 		}
 	}
-	for (let j = position.y+min.y; j < position.y+max.y; j++) {
-		for (let k = position.z+min.z; k < position.z+max.z; k++) {
-			if(octree.findOut(position.x+min.x,j,k)||octree.findOut(position.x+max.x,j,k)){
-				return true;
-			}
-		}
-		
-	}
-	for (let k = position.z+min.z; k < position.z+max.z; k++) {
-		for (let i = position.x+min.x; i <position.x+max.x ; i++) {
-			if(octree.findOut(i,position.y+min.y,k)||octree.findOut(i,position.y+max.y,k)){
-				return true;
-			}
-		}
-	}
-	return false;
+	return octree.findOut(position.x+center.x,position.y+center.y,position.z+center.z,range);
 }
 
 /** 

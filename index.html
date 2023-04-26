@@ -19,6 +19,16 @@
 		/>
 		<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> 
+		<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+		<script type="importmap">
+		{
+			"imports": {
+			"three": "./node_modules/three/build/three.module.js",
+			"three/addons/": "./node_modules/three/examples/jsm/"
+			}
+		}
+		</script>
 	</head>
 	<body>
 		<section id="loading-screen">
