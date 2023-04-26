@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Capsule } from 'three/addons/math/Capsule.js';
 const TopLeftFront= 0;
 const TopRightFront= 1;
 const BottomRightFront= 2;
@@ -348,9 +349,16 @@ class Octree{
 			t.c==this.children[pos].triangle.c;
         }
     }
-	findOut(x, y, z, bounding)
+	/**
+	 * 
+	 * @param {Capsule} capsule collider of player
+	 * @param {Array} resp array for points
+	 * @returns 
+	 */
+	findOut(capsule,resp)
     {
-		return false;
+		/* return false;
+
         // If point is out of bound
         if (x < this.topLeftFront.x
             || x > this.bottomRightBack.x
@@ -429,7 +437,18 @@ class Octree{
             // the given value
             return compareFind(x,y,z, 
 				this.children[pos].point.x,this.children[pos].point.y,this.children[pos].point.z);
-        }
+        } */
+		const cube=new THREE.Box3(new THREE.Vector3(this.bottomRightBack.x,this.bottomRightBack.y,this.bottomRightBack.z),
+			new THREE.Vector3(this.topLeftFront.x,this.topLeftFront.y,this.topLeftFront.z));
+		if (!capsule.intersectsBox(cube)){
+			for (let i = 0; i < this.children.length; i++) {
+				if (this.children[i].triangle==null) {
+					return this.children[i].findOut(capsule,resp);
+				}
+			}
+		}else{
+			return true;
+		}
     }
 	
 }
@@ -603,19 +622,19 @@ export function addPointsFromBounding(mesh,presition,scene,debug) {
  * @param {THREE.Vector3} max the object.max
  */
 export function detectColision(position,min,max) {
-	const center=new THREE.Vector3((max.x+min.x)/2,(max.y+min.y)/2,(max.z+min.z)/2);
-	const distance= new THREE.Vector3(max.x-min.x,max.y-min.y,max.z-min.z);
-	let range=0;
-	if (distance.x<distance.y<distance.z) {
-		range=distance.x;
-	}else{
-		if (distance.y<distance.z) {
-			range=distance.y;
-		} else {
-			range=distance.z;
-		}
+	
+	let r=0;
+	const x=max.x-min.x;
+	const y=max.y-min.y;
+	if (x<y) {
+		r=y/2;
+	} else {
+		r=x/2;
 	}
-	return octree.findOut(position.x+center.x,position.y+center.y,position.z+center.z,range);
+	const collider=new Capsule( new THREE.Vector3( 0, min.y, 0 ), new THREE.Vector3( 0, max.y, 0 ), r );
+	collider.translate(position);
+	const resp=[];
+	return octree.findOut(collider,resp);
 }
 
 /** 
