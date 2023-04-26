@@ -9,7 +9,7 @@ const BottomRightBack= 6;
 const BottomLeftBack= 7;
 //se compara con un rango de error permitido
 function compareFind(x1,y1,z1,x2,y2,z2) {
-	if (Math.abs(x2-x1)<1&&Math.abs(y2-y1)<1&&Math.abs(z2-z1)<1) {
+	if (Math.abs(x2-x1)<2&&Math.abs(y2-y1)<2&&Math.abs(z2-z1)<2) {
 		return true;
 	}else{
 		return false;
@@ -569,14 +569,14 @@ export function addPointsFromBounding(mesh,presition,scene,debug) {
 			for (let k = min.z-.1; k <= max.z+.1; k+=pres) {
 				const point=new THREE.Vector3(j,i,k).applyMatrix4(mesh.matrixWorld);
 				point.set(Number(point.x.toFixed(presition)),Number(point.y.toFixed(presition)),Number(point.z.toFixed(presition)));
-				if (!octree.find(point.x,point.y,point.z)) {
+				//if (!octree.find(point.x,point.y,point.z)) {
 					if(octree.insert(point.x,point.y,point.z)){
 						//debugs.push(point);
 						points.push(point.x);
 						points.push(point.y);
 						points.push(point.z);
 					}
-				}
+				//}
 			}
 		}
 	}

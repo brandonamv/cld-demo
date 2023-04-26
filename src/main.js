@@ -156,7 +156,7 @@ class HackNSlashDemo {
 
     this._sun = light;
 
-    
+    OCTREE.newOctree(-600,600);
 
     //variable del cielo
     //this._cielo = new Sky(this._scene, this._camera);
