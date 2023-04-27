@@ -441,14 +441,84 @@ class Octree{
 		const cube=new THREE.Box3(new THREE.Vector3(this.bottomRightBack.x,this.bottomRightBack.y,this.bottomRightBack.z),
 			new THREE.Vector3(this.topLeftFront.x,this.topLeftFront.y,this.topLeftFront.z));
 		if (!capsule.intersectsBox(cube)){
-			for (let i = 0; i < this.children.length; i++) {
-				if (this.children[i].triangle==null) {
-					return this.children[i].findOut(capsule,resp);
+			const center=new THREE.Vector3(0,0,0);
+			capsule.getCenter(center)
+			const x=center.x;
+			const y=center.y;
+			const z=center.z;
+			// If point is out of bound
+			if (x < this.topLeftFront.x
+				|| x > this.bottomRightBack.x
+				|| y < this.topLeftFront.y
+				|| y > this.bottomRightBack.y
+				|| z < this.topLeftFront.z
+				|| z > this.bottomRightBack.z){
+				//console.log(x,y,z,this);
+				return false;
+			}
+			// Otherwise perform binary search
+			// for each ordinate
+			const midx = (this.topLeftFront.x
+						+ this.bottomRightBack.x)
+					/ 2;
+			const midy = (this.topLeftFront.y
+						+ this.bottomRightBack.y)
+					/ 2;
+			const midz = (this.topLeftFront.z
+						+ this.bottomRightBack.z)
+					/ 2;
+	
+			let pos = -1;
+	
+			// Deciding the position
+			// where to move
+			if (x <= midx) {
+				if (y <= midy) {
+					if (z <= midz)
+						pos = TopLeftFront;
+					else
+						pos = TopLeftBottom;
+				}
+				else {
+					if (z <= midz)
+						pos = BottomLeftFront;
+					else
+						pos = BottomLeftBack;
 				}
 			}
+			else {
+				if (y <= midy) {
+					if (z <= midz)
+						pos = TopRightFront;
+					else
+						pos = TopRightBottom;
+				}
+				else {
+					if (z <= midz)
+						pos = BottomRightFront;
+					else
+						pos = BottomRightBack;
+				}
+			}
+	
+			// If an internal node is encountered
+			if (this.children[pos].triangle == null) {
+				return this.children[pos].findOut(capsule,resp);
+			}
 		}else{
+			//console.log(this);
+			for (let i = 0; i < this.children.length; i++) {
+				if (this.children[i].triangle==null) {
+					this.children[i].findOut(capsule,resp);
+				}else{
+					if (this.children[i].triangle.a!=null) {
+						resp.push(this.children[i].triangle);
+					}
+				}
+			}
 			return true;
 		}
+		return false;
     }
 	
 }
@@ -626,15 +696,17 @@ export function detectColision(position,min,max) {
 	let r=0;
 	const x=max.x-min.x;
 	const y=max.y-min.y;
-	if (x<y) {
+	if (x>y) {
 		r=y/2;
 	} else {
 		r=x/2;
 	}
 	const collider=new Capsule( new THREE.Vector3( 0, min.y, 0 ), new THREE.Vector3( 0, max.y, 0 ), r );
 	collider.translate(position);
-	const resp=[];
-	return octree.findOut(collider,resp);
+	let resp=[];
+	const collide=octree.findOut(collider,resp);
+	//console.log(resp,collide);
+	return resp.length!=0;
 }
 
 /** 
